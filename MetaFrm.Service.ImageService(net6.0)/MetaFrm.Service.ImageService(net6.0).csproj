@@ -11,7 +11,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MetaFrm.Service.ImageService.net6.0</PackageId>
     <Title>Meta Framework Service ImageService</Title>
-    <Version>6.0.0.0</Version>
+    <Version>6.0.0.52</Version>
     <Authors>dsun</Authors>
     <Company>Meta Framework</Company>
     <Product>Meta Framework Service ImageService</Product>
