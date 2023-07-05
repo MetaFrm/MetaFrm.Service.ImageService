@@ -11,7 +11,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MetaFrm.Service.ImageService.net6.0</PackageId>
     <Title>Meta Framework Service ImageService</Title>
-    <Version>6.0.0.52</Version>
+    <Version>6.0.0.53</Version>
     <Authors>dsun</Authors>
     <Company>Meta Framework</Company>
     <Product>Meta Framework Service ImageService</Product>
@@ -22,6 +22,7 @@
     <RepositoryUrl>https://github.com/MetaFrm/MetaFrm.Service.ImageService</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>meta;framework;dotnet;maui;</PackageTags>
+    <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ss:fffZ"))</SourceRevisionId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,22 +44,6 @@
     <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="tessdata\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\src\tessdata\eng.traineddata" Link="tessdata\eng.traineddata">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\src\tessdata\kor.traineddata" Link="tessdata\kor.traineddata">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\src\tessdata\kor_vert.traineddata" Link="tessdata\kor_vert.traineddata">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

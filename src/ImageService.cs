@@ -11,6 +11,89 @@ namespace MetaFrm.Service
     /// </summary>
     public class ImageService : IService
     {
+        static ImageService() { InitAsync(); }
+
+        /// <summary>
+        /// 이미지 서비스 생성자 입니다.
+        /// </summary>
+        public ImageService() { }
+
+        private static async void InitAsync()
+        {
+            string file;
+            DirectoryInfo directoryInfo = new("tessdata");
+
+            try
+            {
+                if (!directoryInfo.Exists)
+                    directoryInfo.Create();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            try
+            {
+                file = @"tessdata\eng.traineddata";
+
+                if (!File.Exists(file))
+                    using (HttpClient client = new())
+                    {
+                        HttpResponseMessage response = client.GetAsync("https://download.metafrm.net/Tesseract/tessdata/eng.traineddata").Result;
+                        if (response.IsSuccessStatusCode)
+                        {
+                            byte[] data = await response.Content.ReadAsByteArrayAsync();
+                            File.WriteAllBytes(file, data);
+                        }
+                    }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            try
+            {
+                file = @"tessdata\kor.traineddata";
+
+                if (!File.Exists(file))
+                    using (HttpClient client = new())
+                    {
+                        HttpResponseMessage response = client.GetAsync("https://download.metafrm.net/Tesseract/tessdata/kor.traineddata").Result;
+                        if (response.IsSuccessStatusCode)
+                        {
+                            byte[] data = await response.Content.ReadAsByteArrayAsync();
+                            File.WriteAllBytes(file, data);
+                        }
+                    }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            try
+            {
+                file = @"tessdata\kor_vert.traineddata";
+
+                if (!File.Exists(file))
+                    using (HttpClient client = new())
+                    {
+                        HttpResponseMessage response = client.GetAsync("https://download.metafrm.net/Tesseract/tessdata/kor_vert.traineddata").Result;
+                        if (response.IsSuccessStatusCode)
+                        {
+                            byte[] data = await response.Content.ReadAsByteArrayAsync();
+                            File.WriteAllBytes(file, data);
+                        }
+                    }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
         Response IService.Request(ServiceData serviceData)
         {
@@ -48,8 +131,8 @@ namespace MetaFrm.Service
                     for (int i = 0; i < serviceData.Commands[key].Values.Count; i++)
                     {
                         string? imageValue = serviceData.Commands[key].Values[i]["Image"].StringValue;
-                        int seperateCount = serviceData.Commands[key].Values[i].ContainsKey("Seperate") ? serviceData.Commands[key].Values[i]["Seperate"].IntValue ?? 4 : 4;
-                        string? language = serviceData.Commands[key].Values[i].ContainsKey("Language") ? serviceData.Commands[key].Values[i]["Language"].StringValue : "kor";
+                        int seperateCount = serviceData.Commands[key].Values[i].TryGetValue("Seperate", out Data.DataValue? dataValue1) ? dataValue1.IntValue ?? 4 : 4;
+                        string? language = serviceData.Commands[key].Values[i].TryGetValue("Language", out Data.DataValue? dataValue2) ? dataValue2.StringValue : "kor";
 
                         Result[] result;
 
