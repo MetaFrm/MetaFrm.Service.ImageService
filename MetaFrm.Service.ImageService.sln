@@ -3,9 +3,55 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "솔루션 항목", "솔루션 항목", "{87DDAC1F-4EBB-47D7-A333-9C5C5D38EB62}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7F728574-E081-4DCD-8D25-466CF6743B44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{F4F7F293-764D-453E-8E3D-D669D4CACAB4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{CB95295F-8E20-4EC4-92CE-5B5DFCB8D87E}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build_6.0.yml = .github\workflows\build_6.0.yml
+		.github\workflows\build_7.0.yml = .github\workflows\build_7.0.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFrm.Service.ImageService(net6.0)", "MetaFrm.Service.ImageService(net6.0)\MetaFrm.Service.ImageService(net6.0).csproj", "{CCBEC746-915B-4D08-BF50-923B46535BF8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tessdata", "tessdata", "{B4FD810C-E7B7-4BC7-AB22-0EA39E733E96}"
+	ProjectSection(SolutionItems) = preProject
+		src\tessdata\eng.traineddata = src\tessdata\eng.traineddata
+		src\tessdata\kor.traineddata = src\tessdata\kor.traineddata
+		src\tessdata\kor_vert.traineddata = src\tessdata\kor_vert.traineddata
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFrm.Service.ImageService(net7.0)", "MetaFrm.Service.ImageService(net7.0)\MetaFrm.Service.ImageService(net7.0).csproj", "{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCBEC746-915B-4D08-BF50-923B46535BF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCBEC746-915B-4D08-BF50-923B46535BF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCBEC746-915B-4D08-BF50-923B46535BF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCBEC746-915B-4D08-BF50-923B46535BF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CB95295F-8E20-4EC4-92CE-5B5DFCB8D87E} = {F4F7F293-764D-453E-8E3D-D669D4CACAB4}
+		{B4FD810C-E7B7-4BC7-AB22-0EA39E733E96} = {7F728574-E081-4DCD-8D25-466CF6743B44}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {251AC97B-15A0-4720-B4DD-2583752364AE}

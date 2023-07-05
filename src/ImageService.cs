@@ -1,0 +1,204 @@
+﻿using MetaFrm.Diagnostics;
+using System.Drawing;
+using Tesseract;
+using ZXing;
+using ZXing.Windows.Compatibility;
+
+namespace MetaFrm.Service
+{
+    /// <summary>
+    /// 이미지 서비스를 구현합니다.
+    /// </summary>
+    public class ImageService : IService
+    {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
+        Response IService.Request(ServiceData serviceData)
+        {
+            Response response;
+            byte[] buffer;
+
+            try
+            {
+                if (serviceData.ServiceName == null || !serviceData.ServiceName.Equals("MetaFrm.Service.ImageService"))
+                    throw new Exception("Not MetaFrm.Service.ImageService");
+
+                response = new()
+                {
+                    DataSet = new Data.DataSet()
+                };
+
+                Data.DataTable outPutTableBarcode;
+                outPutTableBarcode = new Data.DataTable("Barcode");
+                outPutTableBarcode.DataColumns.Add(new Data.DataColumn("CommandName", "System.String"));
+                outPutTableBarcode.DataColumns.Add(new Data.DataColumn("RowIndex", "System.Int32"));
+                outPutTableBarcode.DataColumns.Add(new Data.DataColumn("Barcode", "System.String"));
+                outPutTableBarcode.DataColumns.Add(new Data.DataColumn("BarcodeFormat", "System.String"));
+                outPutTableBarcode.DataColumns.Add(new Data.DataColumn("NumBits", "System.Int32"));
+
+                Data.DataTable outPutTableText;
+                outPutTableText = new Data.DataTable("Text");
+                outPutTableText.DataColumns.Add(new Data.DataColumn("CommandName", "System.String"));
+                outPutTableText.DataColumns.Add(new Data.DataColumn("RowIndex", "System.Int32"));
+                outPutTableText.DataColumns.Add(new Data.DataColumn("Text", "System.String"));
+
+                BarcodeReader reader = new();
+
+                foreach (var key in serviceData.Commands.Keys)
+                {
+                    for (int i = 0; i < serviceData.Commands[key].Values.Count; i++)
+                    {
+                        string? imageValue = serviceData.Commands[key].Values[i]["Image"].StringValue;
+                        int seperateCount = serviceData.Commands[key].Values[i].ContainsKey("Seperate") ? serviceData.Commands[key].Values[i]["Seperate"].IntValue ?? 4 : 4;
+                        string? language = serviceData.Commands[key].Values[i].ContainsKey("Language") ? serviceData.Commands[key].Values[i]["Language"].StringValue : "kor";
+
+                        Result[] result;
+
+                        if (imageValue != null)
+                        {
+                            buffer = Convert.FromBase64String(imageValue);
+
+                            //바코드 인식
+                            {
+                                using MemoryStream ms = new(buffer);
+
+                                Bitmap bitmap = new(Image.FromStream(ms));
+
+                                result = reader.DecodeMultiple(bitmap);
+
+                                List<string> strings = new();
+
+                                if (result != null && result.Length > 0)
+                                {
+                                    foreach (var barcode in result)
+                                    {
+                                        if (!strings.Contains(barcode.Text))
+                                        {
+                                            strings.Add(barcode.Text);
+
+                                            Data.DataRow dataRow = new();
+                                            dataRow.Values.Add("CommandName", new Data.DataValue(key));
+                                            dataRow.Values.Add("RowIndex", new Data.DataValue(i));
+                                            dataRow.Values.Add("Barcode", new Data.DataValue(barcode.Text));
+                                            dataRow.Values.Add("BarcodeFormat", new Data.DataValue(barcode.BarcodeFormat.ToString()));
+                                            dataRow.Values.Add("NumBits", new Data.DataValue(barcode.NumBits));
+                                            outPutTableBarcode.DataRows.Add(dataRow);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //이미지를 분할 해서 인식
+                                    List<Bitmap> bitmaps = BitmapSeperate(bitmap, seperateCount);
+
+                                    foreach (var item in bitmaps)
+                                    {
+                                        result = reader.DecodeMultiple(item);
+
+                                        if (result != null && result.Length > 0)
+                                        {
+                                            foreach (var barcode in result)
+                                            {
+                                                if (!strings.Contains(barcode.Text))
+                                                {
+                                                    strings.Add(barcode.Text);
+
+                                                    Data.DataRow dataRow = new();
+                                                    dataRow.Values.Add("CommandName", new Data.DataValue(key));
+                                                    dataRow.Values.Add("RowIndex", new Data.DataValue(i));
+                                                    dataRow.Values.Add("Barcode", new Data.DataValue(barcode.Text));
+                                                    dataRow.Values.Add("BarcodeFormat", new Data.DataValue(barcode.BarcodeFormat.ToString()));
+                                                    dataRow.Values.Add("NumBits", new Data.DataValue(barcode.NumBits));
+                                                    outPutTableBarcode.DataRows.Add(dataRow);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //문자 인식
+                            {
+                                using var engine = new TesseractEngine("./tessdata", language ?? "kor", EngineMode.Default);
+                                using var img = Pix.LoadFromMemory(buffer);
+                                using var page = engine.Process(img);
+                                var text = page.GetText();
+
+                                Data.DataRow dataRow = new();
+                                dataRow.Values.Add("CommandName", new Data.DataValue(key));
+                                dataRow.Values.Add("RowIndex", new Data.DataValue(i));
+                                dataRow.Values.Add("Text", new Data.DataValue(text.Trim().ReplaceLineEndings()));
+                                outPutTableText.DataRows.Add(dataRow);
+                            }
+                        }
+                    }
+
+                }
+
+
+                response.DataSet.DataTables.Add(outPutTableBarcode);
+                response.DataSet.DataTables.Add(outPutTableText);
+
+                response.Status = Status.OK;
+
+            }
+            catch (MetaFrmException exception)
+            {
+                DiagnosticsTool.MyTrace(exception);
+                return new Response(exception);
+            }
+            catch (Exception exception)
+            {
+                DiagnosticsTool.MyTrace(exception);
+                return new Response(exception);
+            }
+
+
+            return response;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
+        private static List<Bitmap> BitmapSeperate(Bitmap bitmapOrg, int seperateCount)
+        {
+            List<Bitmap> bitmaps = new();
+            int height;
+            int width;
+
+            if (bitmapOrg.Height >= seperateCount * 20)
+            {
+                height = bitmapOrg.Height / seperateCount;
+
+                for (int i = 0; i < seperateCount; i++)
+                {
+                    Rectangle cropRect = new(0, i * height, bitmapOrg.Width, height);
+
+                    Bitmap target = new(cropRect.Width, cropRect.Height);
+
+                    using Graphics g = Graphics.FromImage(target);
+
+                    g.DrawImage(bitmapOrg, destRect: new Rectangle(0, 0, target.Width, target.Height), cropRect, GraphicsUnit.Pixel);
+
+                    bitmaps.Add(target);
+                }
+            }
+
+            if (bitmapOrg.Width >= seperateCount * 20)
+            {
+                width = bitmapOrg.Width / seperateCount;
+                for (int i = 0; i < seperateCount; i++)
+                {
+                    Rectangle cropRect = new(i * width, 0, bitmapOrg.Height, width);
+
+                    Bitmap target = new(cropRect.Width, cropRect.Height);
+
+                    using Graphics g = Graphics.FromImage(target);
+
+                    g.DrawImage(bitmapOrg, destRect: new Rectangle(0, 0, target.Width, target.Height), cropRect, GraphicsUnit.Pixel);
+
+                    bitmaps.Add(target);
+                }
+            }
+
+            return bitmaps;
+        }
+    }
+}
