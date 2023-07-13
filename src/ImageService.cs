@@ -18,6 +18,10 @@ namespace MetaFrm.Service
         /// </summary>
         public ImageService() { }
 
+
+        /// <summary>
+        /// https://github.com/tesseract-ocr/tessdata
+        /// </summary>
         private static async void InitAsync()
         {
             string file;

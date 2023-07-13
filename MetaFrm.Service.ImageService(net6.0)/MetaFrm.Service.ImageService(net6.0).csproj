@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>MetaFrm</RootNamespace>
@@ -11,7 +10,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MetaFrm.Service.ImageService.net6.0</PackageId>
     <Title>Meta Framework Service ImageService</Title>
-    <Version>6.0.0.53</Version>
+    <Version>6.0.0.54</Version>
     <Authors>dsun</Authors>
     <Company>Meta Framework</Company>
     <Product>Meta Framework Service ImageService</Product>
@@ -24,27 +23,22 @@
     <PackageTags>meta;framework;dotnet;maui;</PackageTags>
     <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ss:fffZ"))</SourceRevisionId>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\src\ImageService.cs" Link="ImageService.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="icon.ico" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="MetaFrm.Core.net6.0" Version="6.0.0.52" />
+    <PackageReference Include="MetaFrm.Core.net6.0" Version="6.0.0.54" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.12" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
 </Project>
