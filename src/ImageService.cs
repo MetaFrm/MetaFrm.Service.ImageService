@@ -245,7 +245,7 @@ namespace MetaFrm.Service
 
                                 QrCodeEncodingOptions options = new()
                                 {
-                                    //DisableECI = true,
+                                    DisableECI = true,
                                     CharacterSet = characterSetValue,//"UTF-8"
                                     Width = (int)widthValue,
                                     Height = (int)heightValue
