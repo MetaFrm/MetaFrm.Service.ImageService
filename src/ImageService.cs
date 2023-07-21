@@ -1,7 +1,10 @@
 ﻿using MetaFrm.Diagnostics;
+using MetaFrm.Extensions;
+using MetaFrm.Maui.ApplicationModel;
 using System.Drawing;
 using Tesseract;
 using ZXing;
+using ZXing.QrCode;
 using ZXing.Windows.Compatibility;
 
 namespace MetaFrm.Service
@@ -109,10 +112,7 @@ namespace MetaFrm.Service
                 if (serviceData.ServiceName == null || !serviceData.ServiceName.Equals("MetaFrm.Service.ImageService"))
                     throw new Exception("Not MetaFrm.Service.ImageService");
 
-                response = new()
-                {
-                    DataSet = new Data.DataSet()
-                };
+                response = new() { DataSet = new Data.DataSet() };
 
                 Data.DataTable outPutTableBarcode;
                 outPutTableBarcode = new Data.DataTable("Barcode");
@@ -121,6 +121,12 @@ namespace MetaFrm.Service
                 outPutTableBarcode.DataColumns.Add(new Data.DataColumn("Barcode", "System.String"));
                 outPutTableBarcode.DataColumns.Add(new Data.DataColumn("BarcodeFormat", "System.String"));
                 outPutTableBarcode.DataColumns.Add(new Data.DataColumn("NumBits", "System.Int32"));
+
+                Data.DataTable outPutTableBarcodeImage;
+                outPutTableBarcodeImage = new Data.DataTable("BarcodeImage");
+                outPutTableBarcodeImage.DataColumns.Add(new Data.DataColumn("CommandName", "System.String"));
+                outPutTableBarcodeImage.DataColumns.Add(new Data.DataColumn("RowIndex", "System.Int32"));
+                outPutTableBarcodeImage.DataColumns.Add(new Data.DataColumn("BarcodeImage", "System.String"));
 
                 Data.DataTable outPutTableText;
                 outPutTableText = new Data.DataTable("Text");
@@ -134,17 +140,22 @@ namespace MetaFrm.Service
                 {
                     for (int i = 0; i < serviceData.Commands[key].Values.Count; i++)
                     {
+                        string[]? command = serviceData.Commands[key].Values[i]["Command"].StringValue?.ToLower().Split(",");
                         string? imageValue = serviceData.Commands[key].Values[i]["Image"].StringValue;
                         int seperateCount = serviceData.Commands[key].Values[i].TryGetValue("Seperate", out Data.DataValue? dataValue1) ? dataValue1.IntValue ?? 4 : 4;
                         string? language = serviceData.Commands[key].Values[i].TryGetValue("Language", out Data.DataValue? dataValue2) ? dataValue2.StringValue : "kor";
 
                         Result[] result;
 
+                        if (command == null)
+                            continue;
+
                         if (imageValue != null)
                         {
                             buffer = Convert.FromBase64String(imageValue);
 
                             //바코드 인식
+                            if (command.Contains("barcode"))
                             {
                                 using MemoryStream ms = new(buffer);
 
@@ -204,6 +215,7 @@ namespace MetaFrm.Service
                             }
 
                             //문자 인식
+                            if (command.Contains("barcode"))
                             {
                                 using var engine = new TesseractEngine("./tessdata", language ?? "kor", EngineMode.Default);
                                 using var img = Pix.LoadFromMemory(buffer);
@@ -217,13 +229,53 @@ namespace MetaFrm.Service
                                 outPutTableText.DataRows.Add(dataRow);
                             }
                         }
+                        else
+                        {
+                            //바코드 생성
+                            if (command.Contains("barcodeimage"))
+                            {
+                                string? textValue = serviceData.Commands[key].Values[i]["Text"].StringValue;
+                                string? characterSetValue = serviceData.Commands[key].Values[i]["CharacterSet"].StringValue;
+                                string? barcodeFormatSetValue = serviceData.Commands[key].Values[i]["BarcodeFormat"].StringValue;
+                                int? widthValue = serviceData.Commands[key].Values[i]["Width"].IntValue;
+                                int? heightValue = serviceData.Commands[key].Values[i]["Height"].IntValue;
+
+                                if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
+                                    continue;
+
+                                QrCodeEncodingOptions options = new()
+                                {
+                                    //DisableECI = true,
+                                    CharacterSet = characterSetValue,//"UTF-8"
+                                    Width = (int)widthValue,
+                                    Height = (int)heightValue
+                                };
+
+                                BarcodeWriter writer = new()
+                                {
+                                    Format = barcodeFormatSetValue.EnumParse<BarcodeFormat>(),//QR_CODE
+                                    Options = options
+                                };
+
+                                Bitmap qrCodeBitmap = writer.Write(textValue);
+
+                                using MemoryStream stream = new();
+                                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+
+                                Data.DataRow dataRow = new();
+                                dataRow.Values.Add("CommandName", new Data.DataValue(key));
+                                dataRow.Values.Add("RowIndex", new Data.DataValue(i));
+                                dataRow.Values.Add("BarcodeImage", new Data.DataValue(Convert.ToBase64String(stream.ToArray())));
+                                outPutTableBarcodeImage.DataRows.Add(dataRow);
+                            }
+                        }
                     }
 
                 }
 
-
                 response.DataSet.DataTables.Add(outPutTableBarcode);
                 response.DataSet.DataTables.Add(outPutTableText);
+                response.DataSet.DataTables.Add(outPutTableBarcodeImage);
 
                 response.Status = Status.OK;
 
