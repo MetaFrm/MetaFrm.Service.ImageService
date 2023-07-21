@@ -258,10 +258,10 @@ namespace MetaFrm.Service
                                         options = new DatamatrixEncodingOptions()
                                         {
                                             CharacterSet = characterSetValue,//"UTF-8"
-                                            Width = (int)widthValue,
-                                            Height = (int)heightValue,
+                                            Width = (int)widthValue - 10,
+                                            Height = (int)heightValue - 10,
                                             PureBarcode = pureBarcode ?? false,
-                                            SymbolShape = (symbolShape ?? "FORCE_SQUARE").EnumParse<SymbolShapeHint>()
+                                            SymbolShape = (symbolShape ?? "FORCE_SQUARE").EnumParse<SymbolShapeHint>(),
                                         };
                                         break;
 
