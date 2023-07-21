@@ -1,9 +1,11 @@
 ﻿using MetaFrm.Diagnostics;
 using MetaFrm.Extensions;
-using MetaFrm.Maui.ApplicationModel;
 using System.Drawing;
 using Tesseract;
 using ZXing;
+using ZXing.Common;
+using ZXing.Datamatrix;
+using ZXing.Datamatrix.Encoder;
 using ZXing.QrCode;
 using ZXing.Windows.Compatibility;
 
@@ -245,14 +247,35 @@ namespace MetaFrm.Service
                                 if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
                                     continue;
 
-                                QrCodeEncodingOptions options = new()
+                                BarcodeFormat barcodeFormat = barcodeFormatSetValue.EnumParse<BarcodeFormat>();
+                                EncodingOptions options;
+
+                                switch (barcodeFormat)
                                 {
-                                    DisableECI = disableECI ?? false,
-                                    CharacterSet = characterSetValue,//"UTF-8"
-                                    Width = (int)widthValue,
-                                    Height = (int)heightValue,
-                                    PureBarcode = pureBarcode ?? false,
-                                };
+                                    case BarcodeFormat.DATA_MATRIX:
+                                        string? symbolShape = serviceData.Commands[key].Values[i]["DatamatrixSymbolShape"].StringValue;
+
+                                        options = new DatamatrixEncodingOptions()
+                                        {
+                                            CharacterSet = characterSetValue,//"UTF-8"
+                                            Width = (int)widthValue,
+                                            Height = (int)heightValue,
+                                            PureBarcode = pureBarcode ?? false,
+                                            SymbolShape = (symbolShape ?? "FORCE_SQUARE").EnumParse<SymbolShapeHint>()
+                                        };
+                                        break;
+
+                                    default:
+                                        options = new QrCodeEncodingOptions()
+                                        {
+                                            DisableECI = disableECI ?? false,
+                                            CharacterSet = characterSetValue,//"UTF-8"
+                                            Width = (int)widthValue,
+                                            Height = (int)heightValue,
+                                            PureBarcode = pureBarcode ?? false,
+                                        };
+                                        break;
+                                }
 
                                 BarcodeWriter writer = new()
                                 {
