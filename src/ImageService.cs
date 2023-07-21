@@ -260,7 +260,9 @@ namespace MetaFrm.Service
                                 Bitmap qrCodeBitmap = writer.Write(textValue);
 
                                 using MemoryStream stream = new();
-                                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+
+                                stream.Position = 0;
 
                                 Data.DataRow dataRow = new();
                                 dataRow.Values.Add("CommandName", new Data.DataValue(key));
