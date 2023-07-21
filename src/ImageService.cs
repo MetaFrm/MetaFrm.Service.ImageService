@@ -240,6 +240,7 @@ namespace MetaFrm.Service
                                 int? widthValue = serviceData.Commands[key].Values[i]["Width"].IntValue;
                                 int? heightValue = serviceData.Commands[key].Values[i]["Height"].IntValue;
                                 bool? disableECI = serviceData.Commands[key].Values[i]["DisableECI"].BooleanValue;
+                                bool? pureBarcode = serviceData.Commands[key].Values[i]["PureBarcode"].BooleanValue;
 
                                 if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
                                     continue;
@@ -249,7 +250,8 @@ namespace MetaFrm.Service
                                     DisableECI = disableECI ?? false,
                                     CharacterSet = characterSetValue,//"UTF-8"
                                     Width = (int)widthValue,
-                                    Height = (int)heightValue
+                                    Height = (int)heightValue,
+                                    PureBarcode = pureBarcode ?? false,
                                 };
 
                                 BarcodeWriter writer = new()
@@ -276,9 +278,12 @@ namespace MetaFrm.Service
 
                 }
 
-                response.DataSet.DataTables.Add(outPutTableBarcode);
-                response.DataSet.DataTables.Add(outPutTableText);
-                response.DataSet.DataTables.Add(outPutTableBarcodeImage);
+                if (outPutTableBarcode.DataRows.Count > 0)
+                    response.DataSet.DataTables.Add(outPutTableBarcode);
+                if (outPutTableText.DataRows.Count > 0)
+                    response.DataSet.DataTables.Add(outPutTableText);
+                if (outPutTableBarcodeImage.DataRows.Count > 0)
+                    response.DataSet.DataTables.Add(outPutTableBarcodeImage);
 
                 response.Status = Status.OK;
 
