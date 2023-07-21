@@ -239,13 +239,14 @@ namespace MetaFrm.Service
                                 string? barcodeFormatSetValue = serviceData.Commands[key].Values[i]["BarcodeFormat"].StringValue;
                                 int? widthValue = serviceData.Commands[key].Values[i]["Width"].IntValue;
                                 int? heightValue = serviceData.Commands[key].Values[i]["Height"].IntValue;
+                                bool? disableECI = serviceData.Commands[key].Values[i]["DisableECI"].BooleanValue;
 
                                 if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
                                     continue;
 
                                 QrCodeEncodingOptions options = new()
                                 {
-                                    DisableECI = true,
+                                    DisableECI = disableECI ?? false,
                                     CharacterSet = characterSetValue,//"UTF-8"
                                     Width = (int)widthValue,
                                     Height = (int)heightValue
