@@ -110,6 +110,7 @@ namespace MetaFrm.Service
             byte[] buffer;
             Point start = new();
             Point end = new();
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
             try
             {
@@ -302,8 +303,10 @@ namespace MetaFrm.Service
                                     {
                                         for (int y = 0; y < qrCodeBitmap.Width; y++)
                                         {
+                                            sb.AppendLine($"{x,y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
+                                                sb.AppendLine($"GG");
                                                 //start = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
@@ -312,13 +315,16 @@ namespace MetaFrm.Service
                                         }
                                         if (isOut) break;
                                     }
+                                    sb.AppendLine($"");
                                     isOut = false;
                                     for (int y = 0; y < qrCodeBitmap.Width; y++)
                                     {
                                         for (int x = 0; x < qrCodeBitmap.Height; x++)
                                         {
+                                            sb.AppendLine($"{x,y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
+                                                sb.AppendLine($"GG");
                                                 //start = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
@@ -329,13 +335,17 @@ namespace MetaFrm.Service
                                     }
                                     start = new Point(xResult, yResult);
 
+                                    sb.AppendLine($"");
+                                    sb.AppendLine($"");
                                     isOut = false;
                                     for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
                                     {
                                         for (int y = qrCodeBitmap.Width - 1; y >= 0; y--)
                                         {
+                                            sb.AppendLine($"{x,y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
+                                                sb.AppendLine($"GG");
                                                 //end = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
@@ -349,8 +359,10 @@ namespace MetaFrm.Service
                                     {
                                         for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
                                         {
+                                            sb.AppendLine($"{x,y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
+                                                sb.AppendLine($"GG");
                                                 //end = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
@@ -405,7 +417,7 @@ namespace MetaFrm.Service
                 DiagnosticsTool.MyTrace(exception);
                 //return new Response(exception);
 
-                return new Response { Status = Status.Failed, Message = $"{exception.ToString()} {start.X},{start.Y} - {end.X},{end.Y}" };
+                return new Response { Status = Status.Failed, Message = $"{exception} {sb}" };
             }
 
 
