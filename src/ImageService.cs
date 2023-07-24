@@ -301,9 +301,9 @@ namespace MetaFrm.Service
                                     sb.AppendLine($"{end.X}/{end.Y}");
 
                                     bool isOut = false;
-                                    for (int x = 0; x < qrCodeBitmap.Height; x++)
+                                    for (int x = 0; x < qrCodeBitmap.Height - 1; x++)
                                     {
-                                        for (int y = 0; y < qrCodeBitmap.Width; y++)
+                                        for (int y = 0; y < qrCodeBitmap.Width - 1; y++)
                                         {
                                             sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
@@ -319,9 +319,9 @@ namespace MetaFrm.Service
                                     }
                                     sb.AppendLine($"");
                                     isOut = false;
-                                    for (int y = 0; y < qrCodeBitmap.Width; y++)
+                                    for (int y = 0; y < qrCodeBitmap.Width - 1; y++)
                                     {
-                                        for (int x = 0; x < qrCodeBitmap.Height; x++)
+                                        for (int x = 0; x < qrCodeBitmap.Height - 1; x++)
                                         {
                                             sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
