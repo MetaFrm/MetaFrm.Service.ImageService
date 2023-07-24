@@ -299,6 +299,8 @@ namespace MetaFrm.Service
                                     end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
 
                                     sb.AppendLine($"{end.X}/{end.Y}");
+                                    sb.AppendLine($"{qrCodeBitmap.Width},{qrCodeBitmap.Height}");
+                                    sb.AppendLine($"{qrCodeBitmap.Width - 1},{qrCodeBitmap.Height - 1}");
 
                                     bool isOut = false;
                                     for (int x = 0; x < qrCodeBitmap.Height - 1; x++)
