@@ -290,38 +290,74 @@ namespace MetaFrm.Service
                                 if (noSpace == true)
                                 {
                                     Color c = qrCodeBitmap.GetPixel(0, 0);
+                                    int xResult = 0;
+                                    int yResult = 0;
                                     Point start = new(0, 0);
                                     Point end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
 
                                     bool isOut = false;
+                                    for (int x = 0; x < qrCodeBitmap.Height; x++)
+                                    {
+                                        for (int y = 0; y < qrCodeBitmap.Width; y++)
+                                        {
+                                            if (c != qrCodeBitmap.GetPixel(x, y))
+                                            {
+                                                //start = new Point(x, y);
+                                                xResult = x;
+                                                isOut = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isOut) break;
+                                    }
+                                    isOut = false;
                                     for (int y = 0; y < qrCodeBitmap.Width; y++)
                                     {
                                         for (int x = 0; x < qrCodeBitmap.Height; x++)
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                start = new Point(x, y);
+                                                //start = new Point(x, y);
+                                                yResult = y;
                                                 isOut = true;
                                                 break;
                                             }
                                         }
                                         if (isOut) break;
                                     }
+                                    start = new Point(xResult, yResult);
 
                                     isOut = false;
+                                    for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
+                                    {
+                                        for (int y = qrCodeBitmap.Width - 1; y >= 0; y--)
+                                        {
+                                            if (c != qrCodeBitmap.GetPixel(x, y))
+                                            {
+                                                //end = new Point(x, y);
+                                                xResult = x;
+                                                isOut = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isOut) break;
+                                    }
+                                    isOut = false;
                                     for (int y = qrCodeBitmap.Width - 1; y >= 0; y--)
-                                    { 
+                                    {
                                         for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                end = new Point(x, y);
+                                                //end = new Point(x, y);
+                                                yResult = y;
                                                 isOut = true;
                                                 break;
                                             }
                                         }
                                         if (isOut) break;
                                     }
+                                    end = new Point(xResult, yResult);
 
                                     Bitmap target = new(end.X - start.X, end.Y - start.Y);
 
