@@ -108,6 +108,8 @@ namespace MetaFrm.Service
         {
             Response response;
             byte[] buffer;
+            Point start = new();
+            Point end = new();
 
             try
             {
@@ -292,8 +294,8 @@ namespace MetaFrm.Service
                                     Color c = qrCodeBitmap.GetPixel(0, 0);
                                     int xResult = 0;
                                     int yResult = 0;
-                                    Point start = new(0, 0);
-                                    Point end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
+                                    start = new(0, 0);
+                                    end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
 
                                     bool isOut = false;
                                     for (int x = 0; x < qrCodeBitmap.Height; x++)
@@ -401,7 +403,9 @@ namespace MetaFrm.Service
             catch (Exception exception)
             {
                 DiagnosticsTool.MyTrace(exception);
-                return new Response(exception);
+                //return new Response(exception);
+
+                return new Response { Status = Status.Failed, Message = $"{exception.ToString()} {start.X},{start.Y} - {end.X},{end.Y}" };
             }
 
 
