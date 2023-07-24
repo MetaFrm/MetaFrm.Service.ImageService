@@ -236,19 +236,19 @@ namespace MetaFrm.Service
                             //바코드 생성
                             if (command.Contains("barcodeimage"))
                             {
-                                string? textValue = serviceData.Commands[key].Values[i]["Text"].StringValue;
-                                string? characterSetValue = serviceData.Commands[key].Values[i]["CharacterSet"].StringValue;
-                                string? barcodeFormatSetValue = serviceData.Commands[key].Values[i]["BarcodeFormat"].StringValue;
-                                int? widthValue = serviceData.Commands[key].Values[i]["Width"].IntValue;
-                                int? heightValue = serviceData.Commands[key].Values[i]["Height"].IntValue;
+                                string? text = serviceData.Commands[key].Values[i]["Text"].StringValue;
+                                string? characterSet = serviceData.Commands[key].Values[i].TryGetValue("CharacterSet", out Data.DataValue? valueCharacterSet) ? valueCharacterSet.StringValue : "UTF-8";
+                                string? barcodeFormat1 = serviceData.Commands[key].Values[i].TryGetValue("BarcodeFormat", out Data.DataValue? valueBarcodeFormat) ? valueBarcodeFormat.StringValue : "QR_CODE";
+                                int? widthValue = serviceData.Commands[key].Values[i].TryGetValue("Width", out Data.DataValue? valueWidth) ? valueWidth.IntValue : 300;
+                                int? heightValue = serviceData.Commands[key].Values[i].TryGetValue("Height", out Data.DataValue? valueHeight) ? valueHeight.IntValue : 300;
                                 bool? disableECI = serviceData.Commands[key].Values[i].TryGetValue("DisableECI", out Data.DataValue? valueDisableECI) ? valueDisableECI.BooleanValue : false;
                                 bool? pureBarcode = serviceData.Commands[key].Values[i].TryGetValue("PureBarcode", out Data.DataValue? valuePureBarcode) ? valuePureBarcode.BooleanValue : false;
                                 bool? noSpace = serviceData.Commands[key].Values[i].TryGetValue("NoSpace", out Data.DataValue? valueNoSpace) ? valueNoSpace.BooleanValue : false;
 
-                                if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
+                                if (text == null || characterSet == null || barcodeFormat1 == null || widthValue == null || heightValue == null)
                                     continue;
 
-                                BarcodeFormat barcodeFormat = barcodeFormatSetValue.EnumParse<BarcodeFormat>();
+                                BarcodeFormat barcodeFormat = barcodeFormat1.EnumParse<BarcodeFormat>();
                                 EncodingOptions options;
 
                                 switch (barcodeFormat)
@@ -258,7 +258,7 @@ namespace MetaFrm.Service
 
                                         options = new DatamatrixEncodingOptions()
                                         {
-                                            CharacterSet = characterSetValue,//"UTF-8"
+                                            CharacterSet = characterSet,//"UTF-8"
                                             Width = (int)widthValue,
                                             Height = (int)heightValue,
                                             PureBarcode = pureBarcode ?? false,
@@ -270,7 +270,7 @@ namespace MetaFrm.Service
                                         options = new QrCodeEncodingOptions()
                                         {
                                             DisableECI = disableECI ?? false,
-                                            CharacterSet = characterSetValue,//"UTF-8"
+                                            CharacterSet = characterSet,//"UTF-8"
                                             Width = (int)widthValue,
                                             Height = (int)heightValue,
                                             PureBarcode = pureBarcode ?? false,
@@ -280,11 +280,11 @@ namespace MetaFrm.Service
 
                                 BarcodeWriter writer = new()
                                 {
-                                    Format = barcodeFormatSetValue.EnumParse<BarcodeFormat>(),//QR_CODE
+                                    Format = barcodeFormat1.EnumParse<BarcodeFormat>(),//QR_CODE
                                     Options = options
                                 };
 
-                                Bitmap qrCodeBitmap = writer.Write(textValue);
+                                Bitmap qrCodeBitmap = writer.Write(text);
 
 
                                 if (noSpace == true)
@@ -303,7 +303,6 @@ namespace MetaFrm.Service
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                //start = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
                                                 break;
@@ -318,7 +317,6 @@ namespace MetaFrm.Service
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                //start = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
                                                 break;
@@ -335,7 +333,6 @@ namespace MetaFrm.Service
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                //end = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
                                                 break;
@@ -350,7 +347,6 @@ namespace MetaFrm.Service
                                         {
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                //end = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
                                                 break;
