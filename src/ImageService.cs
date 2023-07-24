@@ -303,7 +303,7 @@ namespace MetaFrm.Service
                                     {
                                         for (int y = 0; y < qrCodeBitmap.Width; y++)
                                         {
-                                            sb.AppendLine($"{x,y}");
+                                            sb.AppendLine($"{x}{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
                                                 sb.AppendLine($"GG");
@@ -321,7 +321,7 @@ namespace MetaFrm.Service
                                     {
                                         for (int x = 0; x < qrCodeBitmap.Height; x++)
                                         {
-                                            sb.AppendLine($"{x,y}");
+                                            sb.AppendLine($"{x}{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
                                                 sb.AppendLine($"GG");
@@ -342,7 +342,7 @@ namespace MetaFrm.Service
                                     {
                                         for (int y = qrCodeBitmap.Width - 1; y >= 0; y--)
                                         {
-                                            sb.AppendLine($"{x,y}");
+                                            sb.AppendLine($"{x}{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
                                                 sb.AppendLine($"GG");
@@ -359,7 +359,7 @@ namespace MetaFrm.Service
                                     {
                                         for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
                                         {
-                                            sb.AppendLine($"{x,y}");
+                                            sb.AppendLine($"{x}{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
                                                 sb.AppendLine($"GG");
