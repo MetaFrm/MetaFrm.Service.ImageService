@@ -108,9 +108,6 @@ namespace MetaFrm.Service
         {
             Response response;
             byte[] buffer;
-            Point start = new();
-            Point end = new();
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
             try
             {
@@ -295,23 +292,17 @@ namespace MetaFrm.Service
                                     Color c = qrCodeBitmap.GetPixel(0, 0);
                                     int xResult = 0;
                                     int yResult = 0;
-                                    start = new(0, 0);
-                                    end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
-
+                                    Point start = new(0, 0);
+                                    Point end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
                                     Size size = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
-
-                                    sb.AppendLine($"{end.X}/{end.Y}");
-                                    sb.AppendLine($"{size.Width},{size.Height}");
 
                                     bool isOut = false;
                                     for (int x = 0; x < size.Width; x++)
                                     {
                                         for (int y = 0; y < size.Height; y++)
                                         {
-                                            sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                sb.AppendLine($"GG");
                                                 //start = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
@@ -320,16 +311,13 @@ namespace MetaFrm.Service
                                         }
                                         if (isOut) break;
                                     }
-                                    sb.AppendLine($"");
                                     isOut = false;
                                     for (int y = 0; y < size.Height; y++)
                                     {
                                         for (int x = 0; x < size.Width; x++)
                                         {
-                                            sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                sb.AppendLine($"GG");
                                                 //start = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
@@ -340,17 +328,13 @@ namespace MetaFrm.Service
                                     }
                                     start = new Point(xResult, yResult);
 
-                                    sb.AppendLine($"");
-                                    sb.AppendLine($"");
                                     isOut = false;
                                     for (int x = size.Width; x >= 0; x--)
                                     {
                                         for (int y = size.Height; y >= 0; y--)
                                         {
-                                            sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                sb.AppendLine($"GG");
                                                 //end = new Point(x, y);
                                                 xResult = x;
                                                 isOut = true;
@@ -364,10 +348,8 @@ namespace MetaFrm.Service
                                     {
                                         for (int x = size.Width; x >= 0; x--)
                                         {
-                                            sb.AppendLine($"{x},{y}");
                                             if (c != qrCodeBitmap.GetPixel(x, y))
                                             {
-                                                sb.AppendLine($"GG");
                                                 //end = new Point(x, y);
                                                 yResult = y;
                                                 isOut = true;
@@ -420,9 +402,7 @@ namespace MetaFrm.Service
             catch (Exception exception)
             {
                 DiagnosticsTool.MyTrace(exception);
-                //return new Response(exception);
-
-                return new Response { Status = Status.Failed, Message = $"{exception} {sb}" };
+                return new Response(exception);
             }
 
 
