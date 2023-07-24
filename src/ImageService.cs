@@ -241,8 +241,9 @@ namespace MetaFrm.Service
                                 string? barcodeFormatSetValue = serviceData.Commands[key].Values[i]["BarcodeFormat"].StringValue;
                                 int? widthValue = serviceData.Commands[key].Values[i]["Width"].IntValue;
                                 int? heightValue = serviceData.Commands[key].Values[i]["Height"].IntValue;
-                                bool? disableECI = serviceData.Commands[key].Values[i]["DisableECI"].BooleanValue;
-                                bool? pureBarcode = serviceData.Commands[key].Values[i]["PureBarcode"].BooleanValue;
+                                bool? disableECI = serviceData.Commands[key].Values[i].TryGetValue("DisableECI", out Data.DataValue? valueDisableECI) ? valueDisableECI.BooleanValue : false;
+                                bool? pureBarcode = serviceData.Commands[key].Values[i].TryGetValue("PureBarcode", out Data.DataValue? valuePureBarcode) ? valuePureBarcode.BooleanValue : false;
+                                bool? noSpace = serviceData.Commands[key].Values[i].TryGetValue("NoSpace", out Data.DataValue? valueNoSpace) ? valueNoSpace.BooleanValue : false;
 
                                 if (textValue == null || characterSetValue == null || barcodeFormatSetValue == null || widthValue == null || heightValue == null)
                                     continue;
@@ -284,6 +285,51 @@ namespace MetaFrm.Service
                                 };
 
                                 Bitmap qrCodeBitmap = writer.Write(textValue);
+
+
+                                if (noSpace == true)
+                                {
+                                    Color c = qrCodeBitmap.GetPixel(0, 0);
+                                    Point start = new(0, 0);
+                                    Point end = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
+
+                                    bool isOut = false;
+                                    for (int y = 0; y < qrCodeBitmap.Width; y++)
+                                    {
+                                        for (int x = 0; x < qrCodeBitmap.Height; x++)
+                                        {
+                                            if (c != qrCodeBitmap.GetPixel(x, y))
+                                            {
+                                                start = new Point(x, y);
+                                                isOut = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isOut) break;
+                                    }
+
+                                    isOut = false;
+                                    for (int y = qrCodeBitmap.Width - 1; y >= 0; y--)
+                                    { 
+                                        for (int x = qrCodeBitmap.Height - 1; x >= 0; x--)
+                                        {
+                                            if (c != qrCodeBitmap.GetPixel(x, y))
+                                            {
+                                                end = new Point(x, y);
+                                                isOut = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isOut) break;
+                                    }
+
+                                    Bitmap target = new(end.X - start.X, end.Y - start.Y);
+
+                                    using Graphics g = Graphics.FromImage(target);
+                                    g.DrawImage(qrCodeBitmap, new Rectangle(0, 0, target.Width, target.Height), new Rectangle(start, target.Size), GraphicsUnit.Pixel);
+
+                                    qrCodeBitmap = target;
+                                }
 
                                 using MemoryStream stream = new();
                                 qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
