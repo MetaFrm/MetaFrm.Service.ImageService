@@ -217,7 +217,7 @@ namespace MetaFrm.Service
                             }
 
                             //문자 인식
-                            if (command.Contains("barcode"))
+                            if (command.Contains("text"))
                             {
                                 using var engine = new TesseractEngine("./tessdata", language ?? "kor", EngineMode.Default);
                                 using var img = Pix.LoadFromMemory(buffer);
