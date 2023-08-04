@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MetaFrm.Service.ImageService.net6.0</PackageId>
     <Title>Meta Framework Service ImageService</Title>
-    <Version>6.0.0.56</Version>
+    <Version>6.0.0.57</Version>
     <Authors>dsun</Authors>
     <Company>Meta Framework</Company>
     <Product>Meta Framework Service ImageService</Product>
@@ -30,7 +30,7 @@
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MetaFrm.Core.net6.0" Version="6.0.0.54" />
+    <PackageReference Include="MetaFrm.Core.net6.0" Version="6.0.0.57" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.9" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.12" />
