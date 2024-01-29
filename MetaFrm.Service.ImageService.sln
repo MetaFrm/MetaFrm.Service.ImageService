@@ -18,9 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build_6.0.yml = .github\workflows\build_6.0.yml
 		.github\workflows\build_7.0.yml = .github\workflows\build_7.0.yml
+		.github\workflows\build_8.0.yml = .github\workflows\build_8.0.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFrm.Service.ImageService(net6.0)", "MetaFrm.Service.ImageService(net6.0)\MetaFrm.Service.ImageService(net6.0).csproj", "{CCBEC746-915B-4D08-BF50-923B46535BF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaFrm.Service.ImageService(net6.0)", "MetaFrm.Service.ImageService(net6.0)\MetaFrm.Service.ImageService(net6.0).csproj", "{CCBEC746-915B-4D08-BF50-923B46535BF8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tessdata", "tessdata", "{B4FD810C-E7B7-4BC7-AB22-0EA39E733E96}"
 	ProjectSection(SolutionItems) = preProject
@@ -29,7 +30,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tessdata", "tessdata", "{B4
 		src\tessdata\kor_vert.traineddata = src\tessdata\kor_vert.traineddata
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetaFrm.Service.ImageService(net7.0)", "MetaFrm.Service.ImageService(net7.0)\MetaFrm.Service.ImageService(net7.0).csproj", "{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaFrm.Service.ImageService(net7.0)", "MetaFrm.Service.ImageService(net7.0)\MetaFrm.Service.ImageService(net7.0).csproj", "{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MetaFrm.Service.ImageService(net8.0)", "MetaFrm.Service.ImageService(net8.0)\MetaFrm.Service.ImageService(net8.0).csproj", "{6EA930C4-179B-428C-BBE3-BFB0346EBAAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +48,10 @@ Global
 		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B459A9A-FC0C-4577-9AB5-FFDFD646B9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EA930C4-179B-428C-BBE3-BFB0346EBAAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EA930C4-179B-428C-BBE3-BFB0346EBAAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EA930C4-179B-428C-BBE3-BFB0346EBAAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EA930C4-179B-428C-BBE3-BFB0346EBAAD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
