@@ -1,5 +1,5 @@
-﻿using MetaFrm.Diagnostics;
-using MetaFrm.Extensions;
+﻿using MetaFrm.Extensions;
+using Microsoft.Extensions.Logging;
 using System.Drawing;
 using Tesseract;
 using ZXing;
@@ -165,7 +165,7 @@ namespace MetaFrm.Service
 
                                 result = reader.DecodeMultiple(bitmap);
 
-                                List<string> strings = new();
+                                List<string> strings = [];
 
                                 if (result != null && result.Length > 0)
                                 {
@@ -392,12 +392,12 @@ namespace MetaFrm.Service
             }
             catch (MetaFrmException exception)
             {
-                DiagnosticsTool.MyTrace(exception);
+                Factory.Logger.LogError(exception, "{Message}", exception.Message);
                 return new Response(exception);
             }
             catch (Exception exception)
             {
-                DiagnosticsTool.MyTrace(exception);
+                Factory.Logger.LogError(exception, "{Message}", exception.Message);
                 return new Response(exception);
             }
 
@@ -408,7 +408,7 @@ namespace MetaFrm.Service
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
         private static List<Bitmap> BitmapSeperate(Bitmap bitmapOrg, int seperateCount)
         {
-            List<Bitmap> bitmaps = new();
+            List<Bitmap> bitmaps = [];
             int height;
             int width;
 
