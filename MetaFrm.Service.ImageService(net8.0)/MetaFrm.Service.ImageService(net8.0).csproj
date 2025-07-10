@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>MetaFrm.Service.ImageService.net8.0</PackageId>
     <Title>Meta Framework Service ImageService</Title>
-    <Version>8.0.4.43</Version>
+    <Version>8.0.4.50</Version>
     <Authors>dsun</Authors>
     <Company>Meta Framework</Company>
     <Product>Meta Framework Service ImageService</Product>
@@ -22,7 +22,11 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>meta;framework;dotnet;maui;</PackageTags>
     <SourceRevisionId>build$([System.DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mm:ss:fffZ"))</SourceRevisionId>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\readme.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\src\ImageService.cs" Link="ImageService.cs" />
   </ItemGroup>
@@ -30,7 +34,7 @@
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MetaFrm.Core.net8.0" Version="8.0.4.43" />
+    <PackageReference Include="MetaFrm.Core.net8.0" Version="8.0.4.50" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.13" />
