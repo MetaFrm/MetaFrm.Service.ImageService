@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Tesseract;
 using ZXing;
 using ZXing.Common;
@@ -18,6 +19,7 @@ namespace MetaFrm.Service
     public class ImageService : IService
     {
         private static readonly ConcurrentDictionary<string, TesseractEngine> _engines = new();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _engineLocks = new();
 
         static ImageService() { InitAsync(); }
 
@@ -176,7 +178,7 @@ namespace MetaFrm.Service
                         {
                             //바코드 생성
                             if (commandValue.Contains("barcodeimage"))
-                                HandleBarcodeGeneration(command.Values[i], outPutTableBarcodeImage, key, i);
+                                ProcessBarcodeGeneration(command.Values[i], outPutTableBarcodeImage, key, i);
                         }
                     }
 
@@ -268,10 +270,23 @@ namespace MetaFrm.Service
         }
         private static void ProcessTextRecognition(string language, byte[] buffer, Data.DataTable outPutTableText, string key, int i)
         {
+            string text;
             using var engine = GetEngine(language);
-            using var img = Pix.LoadFromMemory(buffer);
-            using var page = engine.Process(img);
-            var text = page.GetText();
+
+            var sem = _engineLocks.GetOrAdd(language, _ => new SemaphoreSlim(1, 1));
+
+            sem.Wait();
+
+            try
+            {
+                using var img = Pix.LoadFromMemory(buffer);
+                using var page = engine.Process(img);
+                text = page.GetText();
+            }
+            finally
+            {
+                sem.Release();
+            }
 
             Data.DataRow dataRow = new();
             dataRow.Values.Add("CommandName", new Data.DataValue(key));
@@ -280,7 +295,7 @@ namespace MetaFrm.Service
             outPutTableText.DataRows.Add(dataRow);
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
-        private static void HandleBarcodeGeneration(Dictionary<string, Data.DataValue> pairs, Data.DataTable outPutTableBarcodeImage, string key, int i)
+        private static void ProcessBarcodeGeneration(Dictionary<string, Data.DataValue> pairs, Data.DataTable outPutTableBarcodeImage, string key, int i)
         {
             string? text = pairs["Text"].StringValue;
             string? characterSet = pairs.TryGetValue("CharacterSet", out Data.DataValue? valueCharacterSet) ? valueCharacterSet.StringValue : "UTF-8";
@@ -330,88 +345,37 @@ namespace MetaFrm.Service
                 Options = options
             };
 
-            Bitmap qrCodeBitmap = writer.Write(text);
-
+            using  Bitmap original = writer.Write(text);
+            Bitmap qrCodeBitmap = original;
 
             if (noSpace == true)
             {
-                Color c = qrCodeBitmap.GetPixel(0, 0);
-                int xResult = 0;
-                int yResult = 0;
-                Point start;
-                Point end;
-                Size size = new(qrCodeBitmap.Width - 1, qrCodeBitmap.Height - 1);
+                Rectangle bounds = GetQrContentBounds(original);
 
-                bool isOut = false;
-                for (int x = 0; x < size.Width; x++)
+                if (bounds.Width > 0 && bounds.Height > 0 &&
+                    (bounds.Width != original.Width || bounds.Height != original.Height))
                 {
-                    for (int y = 0; y < size.Height; y++)
-                    {
-                        if (c != qrCodeBitmap.GetPixel(x, y))
-                        {
-                            xResult = x;
-                            isOut = true;
-                            break;
-                        }
-                    }
-                    if (isOut) break;
-                }
-                isOut = false;
-                for (int y = 0; y < size.Height; y++)
-                {
-                    for (int x = 0; x < size.Width; x++)
-                    {
-                        if (c != qrCodeBitmap.GetPixel(x, y))
-                        {
-                            yResult = y;
-                            isOut = true;
-                            break;
-                        }
-                    }
-                    if (isOut) break;
-                }
-                start = new Point(xResult, yResult);
+                    Bitmap target = new(bounds.Width, bounds.Height);
 
-                isOut = false;
-                for (int x = size.Width; x >= 0; x--)
-                {
-                    for (int y = size.Height; y >= 0; y--)
+                    using (Graphics g = Graphics.FromImage(target))
                     {
-                        if (c != qrCodeBitmap.GetPixel(x, y))
-                        {
-                            xResult = x;
-                            isOut = true;
-                            break;
-                        }
+                        g.DrawImage(
+                            original,
+                            new Rectangle(0, 0, target.Width, target.Height),
+                            bounds,
+                            GraphicsUnit.Pixel
+                        );
                     }
-                    if (isOut) break;
+
+                    qrCodeBitmap = target;
                 }
-                isOut = false;
-                for (int y = size.Height; y >= 0; y--)
-                {
-                    for (int x = size.Width; x >= 0; x--)
-                    {
-                        if (c != qrCodeBitmap.GetPixel(x, y))
-                        {
-                            yResult = y;
-                            isOut = true;
-                            break;
-                        }
-                    }
-                    if (isOut) break;
-                }
-                end = new Point(xResult, yResult);
-
-                Bitmap target = new(end.X - start.X, end.Y - start.Y);
-
-                using Graphics g = Graphics.FromImage(target);
-                g.DrawImage(qrCodeBitmap, new Rectangle(0, 0, target.Width, target.Height), new Rectangle(start, target.Size), GraphicsUnit.Pixel);
-
-                qrCodeBitmap = target;
             }
 
             using MemoryStream stream = new();
             qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+
+            if (!ReferenceEquals(qrCodeBitmap, original))
+                qrCodeBitmap.Dispose();
 
             stream.Position = 0;
 
@@ -421,8 +385,61 @@ namespace MetaFrm.Service
             dataRow.Values.Add("BarcodeImage", new Data.DataValue(Convert.ToBase64String(stream.ToArray())));
             outPutTableBarcodeImage.DataRows.Add(dataRow);
         }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416")]
+        private static Rectangle GetQrContentBounds(Bitmap bitmap)
+        {
+            Rectangle rect = new(0, 0, bitmap.Width, bitmap.Height);
+            BitmapData data = bitmap.LockBits(
+                rect,
+                ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppArgb
+            );
 
-       [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
+            try
+            {
+                int minX = bitmap.Width;
+                int minY = bitmap.Height;
+                int maxX = 0;
+                int maxY = 0;
+
+                unsafe
+                {
+                    byte* scan0 = (byte*)data.Scan0;
+                    int stride = data.Stride;
+
+                    for (int y = 0; y < bitmap.Height; y++)
+                    {
+                        byte* row = scan0 + (y * stride);
+                        for (int x = 0; x < bitmap.Width; x++)
+                        {
+                            byte b = row[x * 4];
+                            byte g = row[x * 4 + 1];
+                            byte r = row[x * 4 + 2];
+
+                            // 흰색이 아니면 QR 코드 영역
+                            if (!(r > 250 && g > 250 && b > 250))
+                            {
+                                if (x < minX) minX = x;
+                                if (y < minY) minY = y;
+                                if (x > maxX) maxX = x;
+                                if (y > maxY) maxY = y;
+                            }
+                        }
+                    }
+                }
+
+                if (minX > maxX || minY > maxY)
+                    return rect;
+
+                return Rectangle.FromLTRB(minX, minY, maxX + 1, maxY + 1);
+            }
+            finally
+            {
+                bitmap.UnlockBits(data);
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:플랫폼 호환성 유효성 검사", Justification = "<보류 중>")]
         private static List<Bitmap> BitmapSeperate(Bitmap bitmapOrg, int seperateCount)
         {
             List<Bitmap> bitmaps = [];
