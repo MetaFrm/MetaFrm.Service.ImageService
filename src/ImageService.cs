@@ -489,5 +489,12 @@ namespace MetaFrm.Service
             lock (_engines)
                 return _engines.GetOrAdd(lang, l => new TesseractEngine("./tessdata", l, EngineMode.Default));
         }
+
+        Task<Response> IService.RequestAsync(ServiceData serviceData)
+        {
+            Response response = ((IService)this).Request(serviceData);
+
+            return Task.FromResult(response);
+        }
     }
 }
