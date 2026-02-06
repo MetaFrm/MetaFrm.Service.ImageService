@@ -1,5 +1,4 @@
 ﻿using MetaFrm.Extensions;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -44,8 +43,7 @@ namespace MetaFrm.Service
             }
             catch (Exception ex)
             {
-                if (Factory.Logger.IsEnabled(LogLevel.Error))
-                    Factory.Logger.LogError(ex, "{Message}", ex.Message);
+                Factory.Logger.Error(ex, "{0}", ex.Message);
             }
 
             try
@@ -64,8 +62,7 @@ namespace MetaFrm.Service
             }
             catch (Exception ex)
             {
-                if (Factory.Logger.IsEnabled(LogLevel.Error))
-                    Factory.Logger.LogError(ex, "{Message}", ex.Message);
+                Factory.Logger.Error(ex, "{0}", ex.Message);
             }
 
             try
@@ -84,8 +81,7 @@ namespace MetaFrm.Service
             }
             catch (Exception ex)
             {
-                if (Factory.Logger.IsEnabled(LogLevel.Error))
-                    Factory.Logger.LogError(ex, "{Message}", ex.Message);
+                Factory.Logger.Error(ex, "{0}", ex.Message);
             }
 
             try
@@ -104,8 +100,7 @@ namespace MetaFrm.Service
             }
             catch (Exception ex)
             {
-                if (Factory.Logger.IsEnabled(LogLevel.Error))
-                    Factory.Logger.LogError(ex, "{Message}", ex.Message);
+                Factory.Logger.Error(ex, "{0}", ex.Message);
             }
         }
 
@@ -196,8 +191,7 @@ namespace MetaFrm.Service
             }
             catch (Exception ex)
             {
-                if (Factory.Logger.IsEnabled(LogLevel.Error))
-                    Factory.Logger.LogError(ex, "{Message}", ex.Message);
+                Factory.Logger.Error(ex, "{0}", ex.Message);
                 return new Response(ex);
             }
 
