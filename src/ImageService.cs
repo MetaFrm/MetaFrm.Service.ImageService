@@ -1,4 +1,5 @@
-﻿using MetaFrm.Extensions;
+﻿using AsyncKeyedLock;
+using MetaFrm.Extensions;
 using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -18,7 +19,7 @@ namespace MetaFrm.Service
     public class ImageService : IService
     {
         private static readonly ConcurrentDictionary<string, TesseractEngine> _engines = new();
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _engineLocks = new();
+        private static readonly AsyncKeyedLocker<string> _engineLocks = new();
 
         static ImageService() { InitAsync(); }
 
@@ -267,19 +268,11 @@ namespace MetaFrm.Service
             string text;
             using var engine = GetEngine(language);
 
-            var sem = _engineLocks.GetOrAdd(language, _ => new SemaphoreSlim(1, 1));
-
-            sem.Wait();
-
-            try
+            using (_engineLocks.Lock(language))
             {
                 using var img = Pix.LoadFromMemory(buffer);
                 using var page = engine.Process(img);
                 text = page.GetText();
-            }
-            finally
-            {
-                sem.Release();
             }
 
             Data.DataRow dataRow = new();
